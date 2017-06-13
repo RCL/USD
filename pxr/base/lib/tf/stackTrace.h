@@ -30,6 +30,7 @@
 #include <cstdio>
 #include <iosfwd>
 #include <string>
+#include <time.h> // time_t
 
 PXR_NAMESPACE_OPEN_SCOPE
 

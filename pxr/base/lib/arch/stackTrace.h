@@ -38,6 +38,7 @@
 #include <vector>
 #include <string>
 #include <iosfwd>
+#include <time.h> // time_t
 
 PXR_NAMESPACE_OPEN_SCOPE
 
@@ -54,7 +55,6 @@ PXR_NAMESPACE_OPEN_SCOPE
 ///
 /// This function is implemented by calling an external program.  This is
 /// suitable for times where the current process may be corrupted.  In other
-/// cases, using \c ArchPrintStackTrace() or other related functions would be
 /// much faster.
 ///
 /// Note the use of \c char* as opposed to \c string: this is intentional,
