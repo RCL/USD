@@ -38,6 +38,7 @@
 
 #if defined(ARCH_OS_LINUX)
 #include <x86intrin.h>
+#include <time.h>	// for clock_gettime
 #elif defined(ARCH_OS_DARWIN)
 #include <mach/mach_time.h>
 #elif defined(ARCH_OS_WINDOWS)
@@ -66,6 +67,17 @@ ArchGetTickTime()
 #if defined(ARCH_OS_DARWIN)
     // On Darwin we'll use mach_absolute_time().
     return mach_absolute_time();
+#elif defined(ARCH_OS_LINUX)
+    // Rationale for not using __rdtsc() on Linux:
+    // 1) clang <= 3.5 (e.g. CentOS 7) doesn't have that. 
+    // 2) While rdtsc is indeed faster, especially under a VM, it is not safe to use it due to it being possibly affected by multiple factors
+    //   such as power states, live migrations of VMs, and coherency issues on some cores. Not all of those factors are common, but it is safer to use OS API.
+    // See http://oliveryang.net/2015/09/pitfalls-of-TSC-usage/
+    struct timespec clockReading;
+    // ignore possible, but very unlikely failure to avoid branching
+    clock_gettime(CLOCK_MONOTONIC, &clockReading);
+    // our "ticks" will be nanoseconds, so conversions can be avoided
+    return static_cast<uint64_t>(static_cast<uint64_t>(clockReading.tv_sec) * 1000000000ULL + static_cast<uint64_t>(clockReading.tv_nsec));
 #elif defined(ARCH_CPU_INTEL)
     // On Intel we'll use the rdtsc instruction.
     return __rdtsc();
